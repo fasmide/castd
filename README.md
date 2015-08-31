@@ -6,6 +6,7 @@ The idea of this is pretty much to make a web interface for the brilliant castno
 
 - Provide directory listings in a mobilefriendly way
 - let the user start playback of files, (with optional transcoding like castnow)
+- Support multiple streams at the same time, letting the user choose between N chromecasts available.
 - ??!
 
 I'm pretty upset no one did this yet, maybe im just unable to find the project...
