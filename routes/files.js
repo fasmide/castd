@@ -26,29 +26,16 @@ var pathIsAllowed = function(dirs, p) {
 	return false;
 };
 
-router.get('/', function(req, res, next) {
-	
-	var dirs = getDirs(req.app);
-
-	debug("Listing dirs %j", dirs);
-
-	async.map(dirs, fs.readdir, function(err, result) {
-		if(err) {
-			res.json({status:1, errMsg: err});
-			return;
-		}
-
-		res.json({status: 0, errMsg: null, result: result});
-
-	});
+router.get('/', function(req, res) {
+	res.json({status: 0, errMsg: null, result: getDirs(req.app)});
 });
 
-router.get('/:dIndex/:relativePath', function(req, res) {
+router.get('/:dIndex/:relativePath?', function(req, res) {
 
 	var dirs = getDirs(req.app),
 		dIndex = req.params.dIndex,
 		
-		relativePath = req.params.relativePath,
+		relativePath = req.params.relativePath || '/',
 		absolutePath = path.normalize(path.join(dirs[dIndex], relativePath));
 
 	if (!pathIsAllowed(dirs, absolutePath)) {
@@ -56,15 +43,43 @@ router.get('/:dIndex/:relativePath', function(req, res) {
 		return;
 	}
 
-	fs.readdir(absolutePath, function(err, list) {
-		
+
+	async.waterfall([
+		fs.readdir.bind(null, absolutePath),
+
+		function(dirs, cb) {
+
+			async.mapLimit(dirs, 10,
+				function(dir, cb) {
+					fs.stat(path.join(absolutePath, dir), cb);
+				}, 
+				function(err, fStats) {
+				
+				if (err) {
+					cb(err);
+					return;
+				}
+
+				for (var i = dirs.length - 1; i >= 0; i--) {
+					dirs[i] = { name: dirs[i], stat: fStats[i], isDirectory: fStats[i].isDirectory() };
+				}
+				cb(null, dirs);
+			});
+		}
+
+	],
+	
+	function(err, files) {
+	
 		if (err) {
 			res.status(500).json({status:1, errMsg:err});
 			return;
 		}
 
-		res.json({status:0, errMsg: null, result: list});
-	});
+		res.json({status:0, errMsg: null, result: files});
+	}
+);
+	
 
 });
 
