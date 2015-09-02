@@ -15,12 +15,6 @@ castdControllers.controller('FilesListCtrl', ['$scope', '$http', '$routeParams',
 	}
 ]);
 
-castdControllers.controller('FileDetailCtrl', ['$scope', '$routeParams',
-	function ($scope, $routeParams) {
-		$scope.file = $routeParams.file;
-	}
-]);
-
 castdControllers.controller('DirListCtrl', ['$scope', '$http', 
 	function ($scope, $http) {
 		$http.get('/files').success(function(data) {
