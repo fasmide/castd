@@ -4,10 +4,10 @@ castdControllers.controller('FilesListCtrl', ['$scope', '$http', '$routeParams',
 	function ($scope, $http, $routeParams, $location) {
 		
 		$scope.$location = $location;
-
+		$scope.$routeParams = $routeParams;
 		var path = $routeParams.path ? 
 			window.encodeURIComponent($routeParams.path) : 
-			window.encodeURIComponent('/');
+			"";
 		
 		$http.get('/files/' + $routeParams.dIndex + '/' + path).success(function(data) {
 			$scope.files = data.result;

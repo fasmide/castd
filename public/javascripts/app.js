@@ -37,3 +37,7 @@ castdApp.filter('bytes', function() {
 		return (bytes / Math.pow(1024, Math.floor(number))).toFixed(precision) +  ' ' + units[number];
 	}
 });
+
+castdApp.filter('escape', function() {
+  return window.encodeURIComponent;
+});
